@@ -6,19 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
-
-var multer = require('multer');
-var upload = multer({
-  dest: 'public/carImages/'
-});
-var vision = require('@google-cloud/vision');
-var client = new vision.ImageAnnotatorClient({
-  keyFilename: 'My First Project-a44c63fcddcb.json'
-});
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,23 +24,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
-
-app.post('/uploadImage', upload.single('car'), function (req, res, next) {
-  console.log('File uploaded: ' + req.file.path);
-  client
-  .textDetection(req.file.path)
-  .then(results => {
-    var labels = results[0].textAnnotations;
-    console.log(labels[0].description);
-  })
-  .catch(err => {
-    console.error('ERROR:', err);
-  });
-
-  res.end("Uploaded");
-});
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
