@@ -1,0 +1,19 @@
+extends ../node_modules/pug-bootstrap/_bootstrap
+
+
+append body
+	+navbar("Highway Patrol","dropdown_menu","inverse")
+	.container
+		h1= title
+		+panel-primary("Traffic Log")
+			+table-striped(headers,data)
+		+panel-warning("Statistics")
+			.row
+				.col-xs-6
+					.text-center
+						+panel-info("Total Cars")
+							h2= totalCars
+				.col-xs-6
+					.text-center
+						+panel-danger("Pending Cars")
+							h2= pendingCars

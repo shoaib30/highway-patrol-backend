@@ -60,11 +60,11 @@ CarLog.sync({
 });
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', {
-    title: 'Express'
-  });
-});
+// router.get('/', function (req, res, next) {
+//   res.render('index', {
+//     title: 'Highway Patrol'
+//   });
+// });
 
 router.post('/tol1/uploadImage', upload.single('car'), function (req, res, next) {
   console.log('File uploaded: ' + req.file.path);
@@ -116,6 +116,28 @@ router.post('/tol2/uploadImage', upload.single('car'), function (req, res, next)
     .catch(err => {
       console.error('ERROR:', err);
     });
+});
+
+router.get('/', function (req, res, next) {
+  CarLog.findAll().then(carLogs => {
+    var headers = ["#","License Plate","Entry Time","Exit Time"];
+    var data = [];
+    var totalCars = carLogs.length;
+    var pendingCars = 0;
+    carLogs.forEach(carLog => {
+      var temp = [carLog.id, carLog.numberPlate, carLog.entryTime, carLog.exitTime];
+      if(carLog.exitTime == null) pendingCars++;
+      data.push(temp);
+    });
+      res.render('index', {
+        title: 'Highway Patrol',
+        data: data,
+        headers: headers,
+        totalCars: totalCars,
+        pendingCars: pendingCars
+    });
+  });
+  
 });
 
 
