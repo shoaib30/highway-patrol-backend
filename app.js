@@ -10,6 +10,16 @@ var users = require('./routes/users');
 
 var app = express();
 
+var multer = require('multer');
+var upload = multer({
+  dest: 'public/carImages/'
+});
+var vision = require('@google-cloud/vision');
+var client = new vision.ImageAnnotatorClient({
+  keyFilename: 'My First Project-a44c63fcddcb.json'
+});
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -18,22 +28,40 @@ app.set('view engine', 'jade');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
 
+app.post('/uploadImage', upload.single('car'), function (req, res, next) {
+  console.log('File uploaded: ' + req.file.path);
+  client
+  .textDetection(req.file.path)
+  .then(results => {
+    var labels = results[0].textAnnotations;
+    console.log(labels[0].description);
+  })
+  .catch(err => {
+    console.error('ERROR:', err);
+  });
+
+  res.end("Uploaded");
+});
+
+
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
